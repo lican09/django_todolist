@@ -90,7 +90,7 @@ DATABASES = {
          'NAME': 'tododb',
          'USER': 'root',
          'PASSWORD': 'toor',
-         'HOST': '121.42.27.91',
+         'HOST': 'localhost',
          'PORT': '3306',
      }
  }
