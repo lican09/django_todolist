@@ -39,10 +39,10 @@ class UserProfileManager(BaseUserManager):
 class UserProfile(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(_('email address'), blank=False, unique=True)
     is_staff = models.BooleanField(_('staff status'), default=False,
-        help_text=_('Designates whether the user can log into this admin '
+        help_text = _('Designates whether the user can log into this admin '
                     'site.'))
     is_active = models.BooleanField(_('active'), default=True,
-        help_text=_('Designates whether this user should be treated as '
+        help_text = _('Designates whether this user should be treated as '
                     'active. Unselect this instead of deleting accounts.'))
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
     qq = models.CharField(max_length=13, verbose_name='qq')
@@ -65,7 +65,6 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         verbose_name_plural = verbose_name
 
 
-
 class Item(models.Model):
     user = models.ForeignKey(UserProfile)
     content = models.CharField(max_length=200, verbose_name=u"事项内容")
@@ -79,14 +78,3 @@ class Item(models.Model):
     def __unicode__(self):
         return self.content
 
-
-# class User(AbstractBaseUser,PermissionsMixin):
-#     id = models.AutoField(primary_key=True)
-#     email = models.EmailField(_('email address'), blank=False, unique=True,verbose_name=u"邮箱")
-#     password = models.CharField(_('password'), max_length=128,verbose_name=u"密码")
-#     class Meta:
-#         verbose_name = "用户"
-#         verbose_name_plural = verbose_name
-#
-#     def __unicode__(self):
-#         return self.email

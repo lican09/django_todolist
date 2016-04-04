@@ -1,21 +1,31 @@
-#-*- coding:utf-8-*-
+ï»¿#-*- coding:utf-8-*-
 from django import forms
 
 
 class LoginForm(forms.Form):
     '''
-    µÇÂ¼Form
+    LoginForm
     '''
     username = forms.CharField(widget=forms.TextInput(attrs={"placeholder": "Username", "required": "required",}),
-                              max_length=50,error_messages={"required": "username²»ÄÜÎª¿Õ",})
+                              max_length=50,error_messages={"required": "usernameä¸èƒ½ä¸ºç©º",})
     password = forms.CharField(widget=forms.PasswordInput(attrs={"placeholder": "Password", "required": "required",}),
-                              max_length=20,error_messages={"required": "password²»ÄÜÎª¿Õ",})
+                              max_length=20,error_messages={"required": "passwordä¸èƒ½ä¸ºç©º",})
 
 class RegForm(forms.Form):
     '''
-    ×¢²á±íµ¥
+    RegForm
     '''
     email = forms.EmailField(widget=forms.TextInput(attrs={"placeholder": "Email", "required": "required",}),
-                              max_length=50,error_messages={"required": "email²»ÄÜÎª¿Õ",})
+                              max_length=50,error_messages={"required": "emailä¸èƒ½ä¸ºç©º",})
     password = forms.CharField(widget=forms.PasswordInput(attrs={"placeholder": "Password", "required": "required",}),
-                              max_length=20,error_messages={"required": "password²»ÄÜÎª¿Õ",})
+                              max_length=20,error_messages={"required": "passwordä¸èƒ½ä¸ºç©º",})
+
+
+class EditPassForm(forms.Form):
+    '''
+    EditForm
+    '''
+    password = forms.CharField(widget=forms.PasswordInput(attrs={"placeholder": "è¾“å…¥å¯†ç ", "required": "required",}),
+                              max_length=20,error_messages={"required": "passwordä¸èƒ½ä¸ºç©º",})
+    password2 = forms.CharField(widget=forms.PasswordInput(attrs={"placeholder": "å†æ¬¡è¾“å…¥", "required": "required",}),
+                              max_length=20,error_messages={"required": "passwordä¸èƒ½ä¸ºç©º",})

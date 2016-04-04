@@ -1,15 +1,16 @@
 # -*- coding: utf-8-*-
 import logging
 from django.shortcuts import render, redirect, resolve_url
-from models import Item,UserProfile
+from models import Item, UserProfile
 from django.core.paginator import Paginator, PageNotAnInteger, InvalidPage, EmptyPage
 from django.contrib.auth import login, logout, authenticate
 from django.http import HttpResponse
 from django.contrib.auth.decorators import permission_required, login_required, user_passes_test
-from forms import RegForm,LoginForm
+from forms import RegForm, LoginForm, EditPassForm
 from django.contrib.auth.hashers import make_password
 # Create your views here.
 logger = logging.getLogger('todolist.views')
+
 
 # 登录认证
 def do_login(request):
@@ -21,12 +22,16 @@ def do_login(request):
         if user:
             # 验证通过
             login(request, user)
+            print "from IP:", get_client_ip(request)
+            print request.user, "Logined"
             return redirect("/index/")
         else:
             # 验证失败
             return HttpResponse(u"验证失败")
     return render(request, "login.html", locals())
 
+
+# 注销
 def do_logout(request):
     logout(request)
     return redirect("/login/")
@@ -35,20 +40,19 @@ def do_logout(request):
 # 待办事项列表,需要对列表进行分页
 @login_required(login_url="/login/")
 def index(request):
-    print type(get_client_ip(request)),get_client_ip(request)
-    print request.user
     try:
         user_id = UserProfile.objects.get(email=request.user)
         item_list = Item.objects.filter(user=user_id).order_by("-pub_date")
         paginator = Paginator(item_list, 5)
         try:
-            page = int(request.GET.get("page",1))
+            page = int(request.GET.get("page", 1))
             item_list = paginator.page(page)
         except (PageNotAnInteger, InvalidPage, EmptyPage):
             item_list = paginator.page(1)
     except Exception as e:
         print e
     return render(request, "index.html", locals())
+
 
 # 增加待办事项
 @login_required(login_url="/login/")
@@ -59,12 +63,13 @@ def add(request):
     try:
         user_id = UserProfile.objects.get(email=request.user)
         if len(content) > 0:
-            obj = Item.objects.create(content=content,user=user_id)
+            obj = Item.objects.create(content=content, user=user_id)
             if obj:
                 return redirect(resolve_url("index"))
     except Exception as e:
         print e
         return render(request, "message.html", {"message": u"待办事项添加失败"})
+
 
 # 修改待办事项
 @login_required(login_url="/login/")
@@ -81,6 +86,7 @@ def edit(request):
         print e
     return render(request, "message.html", {"message": u"待办事项修改失败"})
 
+
 # 删除待办事项
 @login_required(login_url="/login/")
 def delete(request):
@@ -94,7 +100,8 @@ def delete(request):
         print e
     return render(request, "message.html", {"message": u"待办事项删除失败"})
 
-# 标记事项完成
+
+#  标记事项完成
 @login_required(login_url="/login/")
 def done(request):
     try:
@@ -113,9 +120,11 @@ def done(request):
     return render(request, "message.html", {"message": u"待办事项状态修改失败"})
 
 
+# 注册
 def do_reg(request):
     try:
         if request.method == 'POST':
+            print "POST do_reg"
             reg_form = RegForm(request.POST)
             if reg_form.is_valid():
                 # 注册
@@ -126,7 +135,9 @@ def do_reg(request):
                 user.save()
 
                 # 登录
-                user.backend = 'django.contrib.auth.backends.ModelBackend' # 指定默认的登录验证方式
+                print "OK reg_form"
+                print reg_form.cleaned_data["email"], reg_form.cleaned_data["password"]
+                user = authenticate(username=reg_form.cleaned_data["email"], password=reg_form.cleaned_data["password"])
                 login(request, user)
                 return redirect("/index/")
             else:
@@ -138,11 +149,14 @@ def do_reg(request):
     return render(request, 'reg.html', locals())
 
 
-
+# 警告页面
 def warning(request):
     return render(request, "warning.html", locals())
 
+
+# 记录客户端注册的IP地址
 def get_client_ip(request):
+
     try:
         real_ip = request.META['HTTP_X_FORWARDED_FOR']
         regip = real_ip.split(",")[0]
@@ -152,3 +166,31 @@ def get_client_ip(request):
         except:
             regip = ""
     return regip
+
+
+# 修改密码
+@login_required(login_url="/login/")
+def edit_pass(request):
+    email = request.user.email
+    if request.method == 'POST':
+        edit_form = EditPassForm(request.POST)
+        print str(edit_form)
+        if edit_form.is_valid():
+            pass1 = edit_form.cleaned_data["password"]
+            pass2 = edit_form.cleaned_data["password2"]
+            # 更改密码
+            if pass1 == pass2:
+                user = UserProfile.objects.get(email=email)
+                user.password = make_password(edit_form.cleaned_data["password"])
+                user.save()
+                # 更改成功
+                user = authenticate(username=email, password=pass1)
+                login(request, user)
+            else:
+                return redirect("/edit_pass/")
+            return redirect("/index/")
+        else:
+            return render(request, 'failure.html', {'reason': edit_form.errors})
+    else:
+        edit_form = EditPassForm()
+    return render(request, 'modify_pass.html', locals())

@@ -16,7 +16,7 @@ Including another URLconf
 from django.conf.urls import include, url,patterns
 from django.contrib import admin
 from todolist import views
-from django.contrib.auth import login,logout
+
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
@@ -26,9 +26,10 @@ urlpatterns += patterns("",
     url(r'^index/$', views.index, name="index"),
     url(r'^add/$', views.add, name="add"),
     url(r'^edit/$', views.edit, name="edit"),
-    url(r'^delete/$',views.delete, name="delete"),
+    url(r'^delete/$', views.delete, name="delete"),
     url(r'^done/$', views.done, name="done"),
     url(r'^login/$', views.do_login, name="login"),
     url(r'^logout/$', views.do_logout, name="logout"),
     url(r'^reg/$', views.do_reg, name="reg"),
+    url(r'^edit_pass/$', views.edit_pass, name="edit_pass"),
 )
